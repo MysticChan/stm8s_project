@@ -39,18 +39,13 @@ void main(void)
 {
     CLK_Init();
     uart_init(9600);
-    ATOMLOG("uart2\t\tOK\n");
     /* Initialise the OS before creating our threads */
-    ATOMLOG("atomOSInit\n");
     atomOSInit(&idle_thread_stack[0], IDLE_STACK_SIZE_BYTES, TRUE);
     /* Infinite loop */
     /* Enable the system tick timer */
-    ATOMLOG("archInitSystemTickTimer\n");
     archInitSystemTickTimer();
     /* Create an application thread */
-    ATOMLOG("LED_Thread\n");
     LED_Thread();
-    ATOMLOG("DHT22_Thread\n");
     DHT22_Thread();
     /* Start ATOM OS */
     atomOSStart();

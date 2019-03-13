@@ -2,15 +2,15 @@
 #include "atom.h"
 #include "atomport-private.h"
 #define DHT22_THREAD_PRIO 50
-#define DHT22_THREAD_STACK_SIZE      1024
+#define DHT22_THREAD_STACK_SIZE      128
 static ATOM_TCB dht22_tcb;
 static uint8_t dht22_thread_stack[DHT22_THREAD_STACK_SIZE];
 static void dht22_thread_func (uint32_t param);
 
 static uint8_t DHT22_GetReadings (dht22_data *out);
 static void DHT22_DecodeReadings (dht22_data *out);
-static uint16_t DHT22_GetHumidity (dht22_data *out);
-static uint16_t DHT22_GetTemperature (dht22_data *out);
+// static uint16_t DHT22_GetHumidity (dht22_data *out);
+// static uint16_t DHT22_GetTemperature (dht22_data *out);
 static uint8_t DHT22_Read (dht22_data *out);
 
 void DHT22_Thread (void)
@@ -28,8 +28,10 @@ void DHT22_Thread (void)
 
 static void dht22_thread_func (uint32_t param)
 {
-    param = param;
+    // uint32_t used_bytes, free_bytes;
     static dht22_data dht22_data_t;
+    param = param;
+    
     /* GPIO PC2 */
     GPIO_DeInit(SDA_PORT);
     SDA_OUT;
@@ -38,31 +40,31 @@ static void dht22_thread_func (uint32_t param)
     TIM4_DeInit();
     TIM4_TimeBaseInit( TIM4_PRESCALER_8, 0xff );
     TIM4_Cmd(ENABLE);
-// #ifdef ATOM_STACK_CHECKING
-//     uint32_t used_bytes, free_bytes;
-//     /* Check idle thread stack usage */
-//     if (atomThreadStackCheck (&dht22_tcb, &used_bytes, &free_bytes) == ATOM_OK)
-//     {
-//         /* Check the thread did not use up to the end of stack */
-//         if (free_bytes == 0)
-//         {
-//             ATOMLOG ("DHT22 stack overflow\n");
-//         }
-// #endif
-//         /* Log the stack usage */
-// #ifdef TESTS_LOG_STACK_USAGE
-//         ATOMLOG ("DHT22 Use:%d\n", (int)used_bytes);
-    
-// #endif
-//     }
+
+    // if (atomThreadStackCheck (&dht22_tcb, &used_bytes, &free_bytes) == ATOM_OK)
+    // {
+    //     if (free_bytes == 0)
+    //     {
+    //         ATOMLOG ("DHT22 stack overflow\n");
+    //     }
+        
+    // }
+
     while(1)
     {
-        ATOMLOG("DHT22 is sampling...\n");
+        // ATOMLOG("DHT22 Use:%d\n", (int)used_bytes);
+        ATOMLOG("DHT22: Sampling...\n");
         if( DHT22_Read( &dht22_data_t ) )
         {
-            ATOMLOG("Humidity = %f %%\n", dht22_data_t.humidity);
-            ATOMLOG("Temperature = %f 'C\n", dht22_data_t.temperature);
+            ATOMLOG("DHT22: Completed.\n");
+            ATOMLOG("DHT22: Humidity = %d (0.1%%).\n", dht22_data_t.humidity);
+            ATOMLOG("DHT22: Temperature = %d (0.1'C).\n", dht22_data_t.temperature);
         }
+        else
+        {
+            ATOMLOG("DHT22: Sampling failure.\n");
+        }
+        
         atomTimerDelay(300);
     }
 
@@ -181,15 +183,23 @@ static void DHT22_DecodeReadings (dht22_data *out)
 
 }
 
-static uint16_t DHT22_GetHumidity (dht22_data *out)
-{
-    return (out->hMSB << 8) | out->hLSB;
-}
+// static uint16_t DHT22_GetHumidity (dht22_data *out)
+// {
+//     uint16_t value = 0;
+//     value |= out->hMSB;
+//     value <<= 8;
+//     value |= out->hLSB;
+//     return value;
+// }
 
-static uint16_t DHT22_GetTemperature (dht22_data *out)
-{
-    return (out->tMSB << 8) | out->tLSB;
-}
+// static uint16_t DHT22_GetTemperature (dht22_data *out)
+// {
+//     uint16_t value = 0;
+//     value |= out->tMSB;
+//     value <<= 8;
+//     value |= out->tLSB;
+//     return value;
+// }
 
 
 
@@ -208,16 +218,15 @@ static uint8_t DHT22_Read (dht22_data *out)
 	  out->rcv_response = DHT22_BAD_DATA;
 	  return 0;
 	}
+    out->humidity = 0;
+	out->humidity |= out->hMSB;
+    out->humidity <<= 8;
+    out->humidity |= out->hLSB;
 
-	out->humidity = (float) DHT22_GetHumidity (out) / 10.0f;
-
-	uint16_t temperature = DHT22_GetTemperature (out);
-	out->temperature = ((float) (temperature & 0x7fff)) / 10.0f;
-
-	if (temperature & 0x8000)
-	{
-	  out->temperature = -out->temperature;
-	}
+    out->temperature = 0;
+    out->temperature |= out->tMSB;
+    out->temperature <<= 8;
+    out->temperature |= out->tLSB;
 
 	return 1;
 

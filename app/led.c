@@ -1,7 +1,7 @@
 #include "led.h"
 #include "atom.h"
 #include "atomport-private.h"
-#define LED_STACK_SIZE_BYTES 128
+#define LED_STACK_SIZE_BYTES 64
 #define LED_THREAD_PRIO 100
 static ATOM_TCB led_tcb;
 static uint8_t led_thread_stack[LED_STACK_SIZE_BYTES];
@@ -19,31 +19,24 @@ void LED_Thread(void)
 
 static void led_thread_func (uint32_t param)
 {
+    // uint32_t used_bytes, free_bytes;
     param = param;
     GPIO_DeInit(LED_PORT);
     GPIO_Init(LED_PORT, LED_PIN, GPIO_MODE_OUT_PP_HIGH_FAST);
-    
-// #ifdef ATOM_STACK_CHECKING
-//     uint32_t used_bytes, free_bytes;
-//     /* Check idle thread stack usage */
-//     if (atomThreadStackCheck (&led_tcb, &used_bytes, &free_bytes) == ATOM_OK)
-//     {
-//         /* Check the thread did not use up to the end of stack */
-//         if (free_bytes == 0)
-//         {
-//             ATOMLOG ("LED stack overflow\n");
-//         }
-// #endif
-//         /* Log the stack usage */
-// #ifdef TESTS_LOG_STACK_USAGE
-//         ATOMLOG ("LED Use:%d\n", (int)used_bytes);
-    
-// #endif
-//     }
+    // if (atomThreadStackCheck (&led_tcb, &used_bytes, &free_bytes) == ATOM_OK)
+    // {
+    //     if (free_bytes == 0)
+    //     {
+    //         ATOMLOG ("LED stack overflow\n");
+    //     }
+        
+    // }
+
     while(1)
     {
+        // ATOMLOG ("LED Use:%d\n", (int)used_bytes);
         LED_TOGGLE;
-        ATOMLOG("LED Blink\n");
+        // ATOMLOG("LED: Blink\n");
         atomTimerDelay (100);
     }
 }

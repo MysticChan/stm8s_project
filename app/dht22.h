@@ -24,8 +24,8 @@
 typedef struct _dht22_data
 {
   volatile uint8_t rcv_response;
-  volatile float temperature;
-  volatile float humidity;
+  volatile int16_t temperature;
+  volatile int16_t humidity;
   uint8_t parity;
   uint8_t parity_rcv;
   uint8_t hMSB;

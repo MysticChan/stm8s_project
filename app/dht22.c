@@ -1,6 +1,10 @@
 #include "dht22.h"
 #include "atom.h"
 #include "atomport-private.h"
+#include "atommutex.h"
+
+static ATOM_MUTEX dht22_mutex;
+
 #define DHT22_THREAD_PRIO 50
 #define DHT22_THREAD_STACK_SIZE      128
 static ATOM_TCB dht22_tcb;
@@ -21,9 +25,15 @@ void DHT22_Thread (void)
     /* creat thread */
     status = atomThreadCreate ( &dht22_tcb, DHT22_THREAD_PRIO, dht22_thread_func, 0, &dht22_thread_stack[0], DHT22_THREAD_STACK_SIZE, TRUE);   
     if (status == ATOM_OK)
+    {
+        atomMutexCreate (&dht22_mutex);
         ATOMLOG("DHT22 thread\t\tOK\r\n");
+    }    
     else
-        ATOMLOG("DHT22 thread\t\tFAIL\r\n");     
+    {
+        ATOMLOG("DHT22 thread\t\tFAIL\r\n");  
+    }
+          
 }
 
 static void dht22_thread_func (uint32_t param)
@@ -52,19 +62,23 @@ static void dht22_thread_func (uint32_t param)
 
     while(1)
     {
-        // ATOMLOG("DHT22 Use:%d\n", (int)used_bytes);
-        ATOMLOG("DHT22: Sampling...\n");
-        if( DHT22_Read( &dht22_data_t ) )
+        if (atomMutexGet(&dht22_mutex, 0) == ATOM_OK)
         {
-            ATOMLOG("DHT22: Completed.\n");
-            ATOMLOG("DHT22: Humidity = %d (0.1%%).\n", dht22_data_t.humidity);
-            ATOMLOG("DHT22: Temperature = %d (0.1'C).\n", dht22_data_t.temperature);
+            // ATOMLOG("DHT22 Use:%d\n", (int)used_bytes);
+            ATOMLOG("DHT22: Sampling...\n");
+            if( DHT22_Read( &dht22_data_t ) )
+            {
+                ATOMLOG("DHT22: Completed.\n");
+                ATOMLOG("DHT22: Humidity = %d (0.1%%).\n", dht22_data_t.humidity);
+                ATOMLOG("DHT22: Temperature = %d (0.1'C).\n", dht22_data_t.temperature);
+            }
+            else
+            {
+                ATOMLOG("DHT22: Sampling failure.\n");
+            }
+            /* Return mutex access */
+            atomMutexPut(&dht22_mutex);
         }
-        else
-        {
-            ATOMLOG("DHT22: Sampling failure.\n");
-        }
-        
         atomTimerDelay(300);
     }
 

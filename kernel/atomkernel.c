@@ -683,7 +683,6 @@ uint8_t atomOSInit (void *idle_thread_stack_bottom, uint32_t idle_thread_stack_s
                  idle_thread_stack_bottom,
                  idle_thread_stack_size,
 				 idle_thread_stack_check);
-    printf("creat idle thread \n");
     /* Return status */
     return (status);
 

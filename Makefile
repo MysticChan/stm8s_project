@@ -24,7 +24,7 @@ APP_OBJECTS = atomport.rel uart.rel led.rel dht22.rel main.rel
 APP_ASM_OBJECTS = atomport-asm-sdcc.rel
 
 # STM8S Peripheral driver object files
-PERIPH_OBJECTS = stm8s_gpio.rel stm8s_tim1.rel stm8s_clk.rel stm8s_uart2.rel stm8s_tim4.rel
+PERIPH_OBJECTS = stm8s_gpio.rel stm8s_tim1.rel stm8s_clk.rel stm8s_uart2.rel stm8s_tim2.rel
 
 # Kernel object files
 KERNEL_OBJECTS = atomkernel.rel atomsem.rel atommutex.rel atomtimer.rel atomqueue.rel

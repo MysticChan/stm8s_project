@@ -10,8 +10,8 @@
 #define SDA_LOW   GPIO_WriteLow( SDA_PORT, SDA_PIN )
 #define SDA_IN    GPIO_Init( SDA_PORT, SDA_PIN, GPIO_MODE_IN_PU_NO_IT )
 #define SDA_READ  GPIO_ReadInputPin( SDA_PORT, SDA_PIN )
-#define RST_CNT   TIM4_SetCounter(0)
-#define GET_CNT   TIM4_GetCounter()
+#define RST_CNT   TIM2_SetCounter(0)
+#define GET_CNT   TIM2_GetCounter()
 
 /* DHT22_GetReadings response codes */
 #define DHT22_RCV_OK			      0 // Return with no error

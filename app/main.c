@@ -25,8 +25,8 @@
 #include "atomport-private.h"
 #include "uart.h"
 #include "led.h"
-//#include "dht22.h"
-
+#include "dht22.h"
+#include "display.h"
 /* Private defines -----------------------------------------------------------*/
 #define IDLE_STACK_SIZE_BYTES       128
 static uint8_t idle_thread_stack[IDLE_STACK_SIZE_BYTES];
@@ -47,6 +47,7 @@ void main(void)
     /* Create an application thread */
     LED_Thread();
     DHT22_Thread();
+    E154_Thread();
     /* Start ATOM OS */
     atomOSStart();
 }

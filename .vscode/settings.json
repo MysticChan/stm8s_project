@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "atommutex.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "dht22.h": "c",
+        "atomport-private.h": "c",
+        "font.h": "c",
+        "e154.h": "c",
+        "display.h": "c"
     }
 }

@@ -1,6 +1,5 @@
 #include "dht22.h"
 #include "atom.h"
-#include "atomport-private.h"
 #include "uart.h"
 #define DHT22_THREAD_PRIO 50
 #define DHT22_THREAD_STACK_SIZE      256
@@ -27,9 +26,9 @@ void DHT22_Thread (void)
         SDA_OUT;
         
         /* TIMER4 */
-        TIM2_DeInit();
-        TIM2_TimeBaseInit( TIM2_PRESCALER_8, 0xFFFF);
-        TIM2_Cmd(ENABLE);
+        TIM4_DeInit();
+        TIM4_TimeBaseInit( TIM4_PRESCALER_8, 0xFF);
+        TIM4_Cmd(ENABLE);
         sprintf( uartbuf, "DHT22 thread\t\tOK\n" );
         SerialSendBuf();
     }    
@@ -105,8 +104,6 @@ static uint8_t DHT22_GetReadings (dht22_data *out)
     {
         sprintf( uartbuf, "DHT22_RCV_NO_RESPONSE \r\n");
         SerialSendBuf();
-        sprintf( uartbuf, "counter value = %d \n", c);
-        SerialSendBuf();
         return DHT22_RCV_NO_RESPONSE;
     }
     // Check ACK strobe from sensor
@@ -116,8 +113,6 @@ static uint8_t DHT22_GetReadings (dht22_data *out)
     {
         sprintf( uartbuf, "DHT22_RCV_BAD_ACK1 \r\n");
         SerialSendBuf();
-        sprintf( uartbuf, "counter value = %d \n", c);
-        SerialSendBuf();
         return DHT22_RCV_BAD_ACK1;
     }
     while( (c = GET_CNT) < 100 && (SDA_READ) );
@@ -125,8 +120,6 @@ static uint8_t DHT22_GetReadings (dht22_data *out)
     if( (c < 65) || (c > 95) )
     {
         sprintf( uartbuf, "DHT22_RCV_BAD_ACK2 \r\n");
-        SerialSendBuf();
-        sprintf( uartbuf, "counter value = %d \n", c);
         SerialSendBuf();
         return DHT22_RCV_BAD_ACK2;
     }

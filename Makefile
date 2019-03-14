@@ -20,17 +20,17 @@ DEBUG_MSG=false
 BUILD_DIR=build-sdcc
 #dht22.rel 
 # Port/application object files
-APP_OBJECTS = atomport.rel uart.rel led.rel dht22.rel main.rel
+APP_OBJECTS = atomport.rel uart.rel led.rel dht22.rel display.rel e154.rel main.rel
 APP_ASM_OBJECTS = atomport-asm-sdcc.rel
 
 # STM8S Peripheral driver object files
-PERIPH_OBJECTS = stm8s_gpio.rel stm8s_tim1.rel stm8s_clk.rel stm8s_uart2.rel stm8s_tim2.rel
+PERIPH_OBJECTS = stm8s_gpio.rel stm8s_tim1.rel stm8s_clk.rel stm8s_uart2.rel stm8s_tim4.rel
 
 # Kernel object files
 KERNEL_OBJECTS = atomkernel.rel atomsem.rel atommutex.rel atomtimer.rel atomqueue.rel
 
 # Collection of built objects (excluding test applications)
-ALL_OBJECTS = $(APP_OBJECTS) $(APP_ASM_OBJECTS) $(PERIPH_OBJECTS) $(KERNEL_OBJECTS)
+ALL_OBJECTS = $(APP_OBJECTS) $(APP_ASM_OBJECTS) $(PERIPH_OBJECTS) $(KERNEL_OBJECTS) $(E154_OBJS)
 BUILT_OBJECTS = $(patsubst %,$(BUILD_DIR)/%,$(ALL_OBJECTS))
 
 # Test object files (dealt with separately as only one per application build)
@@ -105,7 +105,7 @@ $(PERIPH_OBJECTS): %.rel: $(PERIPHS_SRC_DIR)/%.c
 
 # Application C objects builder
 $(APP_OBJECTS): %.rel: ./$(APP_DIR)/%.c
-	$(CC) $< $(CFLAGS) -I $(KERNEL_DIR) -I $(APP_DIR) -I $(PERIPHS_INC_DIR) -o $(BUILD_DIR)/$*.rel
+	$(CC) $< $(CFLAGS) -I . -I $(KERNEL_DIR) -I $(APP_DIR) -I $(PERIPHS_INC_DIR) -o $(BUILD_DIR)/$*.rel
 
 pack: ./$(BUILD_DIR)/$(OUTPUT_OBJECTS)
 	packihx ./$(BUILD_DIR)/$(OUTPUT_OBJECTS) >./$(BUILD_DIR)/$(patsubst %.ihx,%.hex,$(OUTPUT_OBJECTS))
